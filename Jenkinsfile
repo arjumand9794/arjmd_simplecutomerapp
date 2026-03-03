@@ -17,7 +17,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/arjumand9794/arjmd_simplecutomerapp.git'
+                git 'https://github.com/arjumand9794/arjmd_simplecutomerapp'
             }
         }
 
