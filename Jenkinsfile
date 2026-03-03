@@ -9,7 +9,7 @@ pipeline {
         NEXUS_VERSION = "nexus3"
         NEXUS_PROTOCOL = "http"
         NEXUS_URL = "98.88.253.148:8081"
-        NEXUS_REPOSITORY = "devops"          // storing artifacts in devops repo
+        NEXUS_REPOSITORY = "devops"
         NEXUS_CREDENTIAL_ID = "nexus-creds"
     }
 
@@ -32,14 +32,17 @@ pipeline {
                 script {
 
                     def pom = readMavenPom file: 'pom.xml'
-                    def artifactPath = "target/${pom.artifactId}-${pom.version}.jar"
+                    def packaging = pom.packaging
+                    def version = "${env.BUILD_NUMBER}-SNAPSHOT"
+
+                    def artifactPath = "target/${pom.artifactId}.${packaging}"
 
                     nexusArtifactUploader(
                         nexusVersion: NEXUS_VERSION,
                         protocol: NEXUS_PROTOCOL,
                         nexusUrl: NEXUS_URL,
                         groupId: pom.groupId,
-                        version: pom.version,
+                        version: version,
                         repository: NEXUS_REPOSITORY,
                         credentialsId: NEXUS_CREDENTIAL_ID,
                         artifacts: [
@@ -47,7 +50,7 @@ pipeline {
                                 artifactId: pom.artifactId,
                                 classifier: '',
                                 file: artifactPath,
-                                type: 'jar'
+                                type: packaging
                             ],
                             [
                                 artifactId: pom.artifactId,
@@ -63,7 +66,7 @@ pipeline {
 
         stage('Archive') {
             steps {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                archiveArtifacts artifacts: 'target/*.war', fingerprint: true
             }
         }
     }
