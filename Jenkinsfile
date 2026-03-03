@@ -33,9 +33,15 @@ pipeline {
 
                     def pom = readMavenPom file: 'pom.xml'
                     def packaging = pom.packaging
-                    def version = "${env.BUILD_NUMBER}-SNAPSHOT"
+                    def version = pom.version
 
-                    def artifactPath = "target/${pom.artifactId}.${packaging}"
+                    def files = findFiles(glob: "target/*.${packaging}")
+
+                    if (files.length == 0) {
+                        error "No ${packaging} file found in target folder"
+                    }
+
+                    def artifactPath = files[0].path
 
                     nexusArtifactUploader(
                         nexusVersion: NEXUS_VERSION,
